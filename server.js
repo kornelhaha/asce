@@ -1,4 +1,5 @@
 const express = require('express');
+const http = require('http'); // ADD THIS
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -13,14 +14,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || '';
 
+// Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:5500',
-    'https://asceac.vercel.app'
-  ],
-  credentials: true
+    origin: ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000', 'http://127.0.0.1:3000', 'https://asceac.vercel.app/'],
+    credentials: true
 }));
-
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -1130,13 +1128,18 @@ app.post('/api/agent/log', authenticateToken, async (req, res) => {
 });
 
 // ============================================================================
-// WEBSOCKET SERVER
+// HTTP SERVER & WEBSOCKET - FIXED
 // ============================================================================
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+// Create HTTP server from Express app
+const server = http.createServer(app);
+
+// Start HTTP server
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
 });
 
+// Create WebSocket server using the HTTP server
 const wss = new WebSocket.Server({ server });
 const connectedClients = new Map();
 
@@ -1217,6 +1220,5 @@ function generateLicenseKey() {
     }
     return key;
 }
-
 
 module.exports = app;
