@@ -16,7 +16,7 @@ const JWT_SECRET = process.env.JWT_SECRET || '';
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000', 'http://127.0.0.1:3000', 'https://asceac.vercel.app/', 'https://asceac.vercel.app'],
+    origin: ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000', 'http://127.0.0.1:3000', 'https://asceac.vercel.app/'],
     credentials: true
 }));
 app.use(express.json());
@@ -500,6 +500,51 @@ app.post('/api/auth/logout', authenticateToken, async (req, res) => {
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: 'Logout failed' });
+    }
+});
+
+
+// ============================================================================
+// DOWNLOAD ROUTE
+// ============================================================================
+
+const fs = require('fs');
+const pathModule = require('path');
+
+app.get('/api/download/client', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        
+        // Check if user has active license
+        if (!user || user.needsActivation) {
+            return res.status(403).json({ error: 'Active license required' });
+        }
+        
+        const filename = req.query.filename || 'asce';
+        
+        // Path to your EXE file
+        const exePath = pathModule.join(__dirname, 'client', 'asce.exe');
+        
+        // Check if file exists
+        if (!fs.existsSync(exePath)) {
+            console.error('Client EXE not found at:', exePath);
+            return res.status(404).json({ error: 'Client file not found' });
+        }
+        
+        // Log download
+        await logActivity(user._id, user.username, 'CLIENT_DOWNLOADED', filename, req.ip);
+        
+        // Set headers for download
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}.exe"`);
+        
+        // Stream the file
+        const fileStream = fs.createReadStream(exePath);
+        fileStream.pipe(res);
+        
+    } catch (error) {
+        console.error('Download error:', error);
+        res.status(500).json({ error: 'Download failed' });
     }
 });
 
@@ -1222,4 +1267,3 @@ function generateLicenseKey() {
 }
 
 module.exports = app;
-
