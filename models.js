@@ -69,7 +69,7 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-// Session Schema (replaces token.txt file)
+// Session Schema
 const sessionSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -83,7 +83,7 @@ const sessionSchema = new mongoose.Schema({
     },
     hwid: {
         type: String,
-        default: null  // Hardware ID for security
+        default: null
     },
     createdAt: {
         type: Date,
@@ -161,7 +161,7 @@ const activitySchema = new mongoose.Schema({
     }
 });
 
-// Config Schema - Updated to store actual module settings
+// Config Schema - Updated with new ImGui overlay settings
 const configSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -185,23 +185,37 @@ const configSchema = new mongoose.Schema({
     useMacro: { type: Boolean, default: false },
     macroIntervals: { type: [Number], default: [] },
     
-    // Overlay settings
+    // Overlay settings - NEW ImGui version
     overlayEnabled: { type: Boolean, default: true },
-    overlayScale: { type: Number, default: 100 },
+    overlayScale: { type: Number, default: 100 }, // 50-200%
+    
+    // Text color
     overlayTextColorR: { type: Number, default: 255 },
     overlayTextColorG: { type: Number, default: 255 },
     overlayTextColorB: { type: Number, default: 255 },
+    
+    // Background
     overlayBackground: { type: Boolean, default: true },
-    overlayLowercase: { type: Boolean, default: true },
-    overlayColorbar: { type: Boolean, default: false },
-    overlaySuffix: { type: Boolean, default: true },
-    overlayShadow: { type: Boolean, default: true },
+    overlayBgColorR: { type: Number, default: 15 },
+    overlayBgColorG: { type: Number, default: 15 },
+    overlayBgColorB: { type: Number, default: 15 },
+    overlayBgOpacity: { type: Number, default: 90 }, // 0-100%
+    
+    // Visual effects
+    overlayTextGlow: { type: Boolean, default: true },
     overlayRainbow: { type: Boolean, default: false },
+    overlayRoundedCorners: { type: Boolean, default: true },
+    
+    // Text formatting
+    overlayLowercase: { type: Boolean, default: true },
+    overlaySuffix: { type: Boolean, default: true },
+    
+    // Watermark
     overlayWatermark: { type: Boolean, default: true },
-    overlayBgColorR: { type: Number, default: 0 },
-    overlayBgColorG: { type: Number, default: 0 },
-    overlayBgColorB: { type: Number, default: 0 },
-    overlayBgOpacity: { type: Number, default: 47 },
+    
+    // Padding (distance from screen edges)
+    overlayPaddingX: { type: Number, default: 20 },
+    overlayPaddingY: { type: Number, default: 20 },
     
     createdAt: {
         type: Date,
