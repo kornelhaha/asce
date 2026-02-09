@@ -16,7 +16,7 @@ const JWT_SECRET = process.env.JWT_SECRET || '';
 
 // Middleware
 app.use(cors({
-    origin: ['https://asceac.vercel.app/', 'https://asceac.vercel.app'],
+    origin: ['https://asceac-ten.vercel.app/', 'https://asceac-ten.vercel.app'],
     credentials: true
 }));
 app.use(express.json());
@@ -1267,3 +1267,4 @@ function generateLicenseKey() {
 }
 
 module.exports = app;
+
