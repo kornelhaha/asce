@@ -1,3 +1,5 @@
+// models.js - Updated with exhaust, spike, and blockhit settings
+
 const mongoose = require('mongoose');
 
 // User Schema
@@ -41,13 +43,12 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-
     hwid: {
-        type: String,  // Stored as JSON string
+        type: String,
         default: null
     },
     hwidFingerprint: {
-        type: String,  // Quick lookup hash
+        type: String,
         default: null
     },
     firstLoginCompleted: {
@@ -56,9 +57,8 @@ const userSchema = new mongoose.Schema({
     },
     hwidLocked: {
         type: Boolean,
-        default: false  // If true, HWID cannot be changed
+        default: false
     },
-
     lastSeen: {
         type: Date,
         default: Date.now
@@ -88,7 +88,7 @@ const sessionSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now,
-        expires: 3600 // Auto-delete after 1 hour
+        expires: 3600
     }
 });
 
@@ -161,7 +161,7 @@ const activitySchema = new mongoose.Schema({
     }
 });
 
-// Config Schema - Updated with new ImGui overlay settings
+// Config Schema - UPDATED with exhaust, spike, and blockhit
 const configSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -173,49 +173,33 @@ const configSchema = new mongoose.Schema({
         required: true,
         default: 'default'
     },
-    // Clicker settings
+    
+    // ===== CLICKER SETTINGS =====
     enabled: { type: Boolean, default: false },
     cps: { type: Number, default: 10.0 },
     leftClick: { type: Boolean, default: true },
-    blatantMode: { type: Boolean, default: false },
-    exhaustMode: { type: Boolean, default: false },
-    exhaustAmount: { type: Number, default: 20 },
+    blatantMode: { type: Boolean, default: false },  // Disables randomization
     holdToClick: { type: Boolean, default: true },
-    hotkeyCode: { type: Number, default: 117 },
-    useMacro: { type: Boolean, default: false },
-    macroIntervals: { type: [Number], default: [] },
+    hotkeyCode: { type: Number, default: 117 },  // F6
     
-    // Overlay settings - NEW ImGui version
-    overlayEnabled: { type: Boolean, default: true },
-    overlayScale: { type: Number, default: 100 }, // 50-200%
+    // ===== EXHAUST MODE SETTINGS =====
+    exhaustMode: { type: Boolean, default: false },
+    exhaustDropCps: { type: Number, default: 3.0 },  // CPS to drop by (1-10)
+    exhaustChance: { type: Number, default: 50 },    // Chance % (0-100)
     
-    // Text color
-    overlayTextColorR: { type: Number, default: 255 },
-    overlayTextColorG: { type: Number, default: 255 },
-    overlayTextColorB: { type: Number, default: 255 },
+    // ===== SPIKE MODE SETTINGS =====
+    spikeMode: { type: Boolean, default: false },
+    spikeIncreaseCps: { type: Number, default: 5.0 },  // CPS to increase by (1-15)
+    spikeChance: { type: Number, default: 30 },        // Chance % (0-100)
     
-    // Background
-    overlayBackground: { type: Boolean, default: true },
-    overlayBgColorR: { type: Number, default: 15 },
-    overlayBgColorG: { type: Number, default: 15 },
-    overlayBgColorB: { type: Number, default: 15 },
-    overlayBgOpacity: { type: Number, default: 90 }, // 0-100%
-    
-    // Visual effects
-    overlayTextGlow: { type: Boolean, default: true },
-    overlayRainbow: { type: Boolean, default: false },
-    overlayRoundedCorners: { type: Boolean, default: true },
-    
-    // Text formatting
-    overlayLowercase: { type: Boolean, default: true },
-    overlaySuffix: { type: Boolean, default: true },
-    
-    // Watermark
-    overlayWatermark: { type: Boolean, default: true },
-    
-    // Padding (distance from screen edges)
-    overlayPaddingX: { type: Number, default: 20 },
-    overlayPaddingY: { type: Number, default: 20 },
+    // ===== BLOCKHIT SETTINGS =====
+    blockhitEnabled: { type: Boolean, default: false },
+    blockChance: { type: Number, default: 50 },        // Chance % to block (0-100)
+    holdLengthMin: { type: Number, default: 50 },      // Min hold time ms (10-500)
+    holdLengthMax: { type: Number, default: 150 },     // Max hold time ms (10-500)
+    delayMin: { type: Number, default: 100 },          // Min delay between blocks ms
+    delayMax: { type: Number, default: 300 },          // Max delay between blocks ms
+    onlyWhileClicking: { type: Boolean, default: true }, // Only trigger during clicking
     
     createdAt: {
         type: Date,
@@ -233,43 +217,19 @@ configSchema.pre('save', function(next) {
     next();
 });
 
-// Macro Schema
-const macroSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    name: {
-        type: String,
-        required: true
-    },
-    intervals: {
-        type: [Number],
-        required: true
-    },
-    cps: {
-        type: Number,
-        required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-});
+// Macro Schema - REMOVED (as requested)
+// No longer needed
 
 const User = mongoose.model('User', userSchema);
 const Session = mongoose.model('Session', sessionSchema);
 const License = mongoose.model('License', licenseSchema);
 const Activity = mongoose.model('Activity', activitySchema);
 const Config = mongoose.model('Config', configSchema);
-const Macro = mongoose.model('Macro', macroSchema);
 
 module.exports = {
     User,
     Session,
     License,
     Activity,
-    Config,
-    Macro
+    Config
 };
