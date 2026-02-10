@@ -1,5 +1,7 @@
+// server.js
+
 const express = require('express');
-const http = require('http'); // ADD THIS
+const http = require('http');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -16,7 +18,7 @@ const JWT_SECRET = process.env.JWT_SECRET || '';
 
 // Middleware
 app.use(cors({
-    origin: ['https://asceac-ten.vercel.app/', 'https://asceac-ten.vercel.app'],
+    origin: ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000', 'http://127.0.0.1:3000', 'https://asceac.vercel.app/', 'https://asceac-ten.vercel.app/', 'https://asceac-ten.vercel.app'],
     credentials: true
 }));
 app.use(express.json());
@@ -1042,16 +1044,36 @@ app.get('/api/agent/settings', authenticateToken, async (req, res) => {
         console.log('[AGENT] Settings fetched for', user.username);
 
         res.json({
+            // Basic clicker settings
             enabled: config.enabled,
             cps: config.cps,
             leftClick: config.leftClick,
             blatantMode: config.blatantMode,
-            exhaustMode: config.exhaustMode,
-            exhaustAmount: config.exhaustAmount,
             holdToClick: config.holdToClick,
             hotkeyCode: config.hotkeyCode,
             useMacro: config.useMacro,
             macroIntervals: config.macroIntervals || [],
+            
+            // Exhaust settings
+            exhaustMode: config.exhaustMode,
+            exhaustDropCps: config.exhaustDropCps,
+            exhaustChance: config.exhaustChance,
+            
+            // Spike settings
+            spikeMode: config.spikeMode,
+            spikeIncreaseCps: config.spikeIncreaseCps,
+            spikeChance: config.spikeChance,
+            
+            // Blockhit settings
+            blockhitEnabled: config.blockhitEnabled,
+            blockChance: config.blockChance,
+            holdLengthMin: config.holdLengthMin,
+            holdLengthMax: config.holdLengthMax,
+            delayMin: config.delayMin,
+            delayMax: config.delayMax,
+            onlyWhileClicking: config.onlyWhileClicking,
+            
+            // Overlay settings
             overlayEnabled: config.overlayEnabled,
             overlayScale: config.overlayScale,
             overlayTextColorR: config.overlayTextColorR,
@@ -1173,7 +1195,7 @@ app.post('/api/agent/log', authenticateToken, async (req, res) => {
 });
 
 // ============================================================================
-// HTTP SERVER & WEBSOCKET - FIXED
+// HTTP SERVER & WEBSOCKET
 // ============================================================================
 
 // Create HTTP server from Express app
@@ -1267,4 +1289,3 @@ function generateLicenseKey() {
 }
 
 module.exports = app;
-
