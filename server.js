@@ -24,10 +24,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
-// ============================================================================
-// DATABASE CONNECTION
-// ============================================================================
-
 mongoose.connect(process.env.MONGODB_URI)
 .then(async () => {
     console.log('Connected to MongoDB');
@@ -36,10 +32,6 @@ mongoose.connect(process.env.MONGODB_URI)
     console.error('MongoDB connection error:', err);
     process.exit(1);
 });
-
-// ============================================================================
-// MIDDLEWARE
-// ============================================================================
 
 // JWT verification
 function authenticateToken(req, res, next) {
@@ -98,10 +90,6 @@ async function logActivity(userId, username, action, details = '', ipAddress = n
         console.error('Activity log error:', error);
     }
 }
-
-// ============================================================================
-// AUTH ROUTES
-// ============================================================================
 
 // Register
 app.post('/api/auth/register', async (req, res) => {
@@ -505,11 +493,6 @@ app.post('/api/auth/logout', authenticateToken, async (req, res) => {
     }
 });
 
-
-// ============================================================================
-// DOWNLOAD ROUTE
-// ============================================================================
-
 const fs = require('fs');
 const pathModule = require('path');
 
@@ -549,10 +532,6 @@ app.get('/api/download/client', authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Download failed' });
     }
 });
-
-// ============================================================================
-// ADMIN ROUTES
-// ============================================================================
 
 // Get stats
 app.get('/api/admin/stats', authenticateToken, requireAdmin, async (req, res) => {
@@ -815,10 +794,6 @@ app.post('/api/admin/users/:id/reset-hwid', authenticateToken, requireAdmin, asy
     }
 });
 
-// ============================================================================
-// USER ROUTES
-// ============================================================================
-
 // Get user profile
 app.get('/api/user/profile', authenticateToken, async (req, res) => {
     try {
@@ -990,10 +965,6 @@ app.post('/api/user/clicks', authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Failed to update clicks' });
     }
 });
-
-// ============================================================================
-// AGENT API ENDPOINTS
-// ============================================================================
 
 // Agent validation
 app.get('/api/agent/validate', authenticateToken, async (req, res) => {
@@ -1194,10 +1165,6 @@ app.post('/api/agent/log', authenticateToken, async (req, res) => {
     }
 });
 
-// ============================================================================
-// HTTP SERVER & WEBSOCKET
-// ============================================================================
-
 // Create HTTP server from Express app
 const server = http.createServer(app);
 
@@ -1289,4 +1256,3 @@ function generateLicenseKey() {
 }
 
 module.exports = app;
-
