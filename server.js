@@ -994,27 +994,7 @@ app.get('/api/agent/validate', authenticateToken, async (req, res) => {
     }
 });
 
-// Get agent settings
-app.get('/api/agent/settings', authenticateToken, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
-
-        if (!user || user.needsActivation) {
-            return res.status(403).json({ error: 'Account not activated' });
-        }
-
-        let config = await Config.findOne({ userId: req.user.id, name: 'default' });
-
-        if (!config) {
-            config = await Config.create({
-                userId: req.user.id,
-                name: 'default'
-            });
-        }
-
-        console.log('[AGENT] Settings fetched for', user.username);
-
-        res.json({
+res.json({
     // Basic clicker settings
     enabled: config.enabled,
     cps: config.cps,
@@ -1059,11 +1039,6 @@ app.get('/api/agent/settings', authenticateToken, async (req, res) => {
     
     // Loader settings
     hideLoader: config.hideLoader,
-});
-    } catch (error) {
-        console.error('Settings fetch error:', error);
-        res.status(500).json({ error: 'Failed to fetch settings' });
-    }
 });
 
 // Update agent settings
