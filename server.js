@@ -994,6 +994,78 @@ app.get('/api/agent/validate', authenticateToken, async (req, res) => {
     }
 });
 
+// Get agent settings
+app.get('/api/agent/settings', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user || user.needsActivation) {
+            return res.status(403).json({ error: 'Account not activated' });
+        }
+
+        let config = await Config.findOne({ userId: req.user.id, name: 'default' });
+
+        if (!config) {
+            config = await Config.create({
+                userId: req.user.id,
+                name: 'default'
+            });
+        }
+
+        console.log('[AGENT] Settings fetched for', user.username);
+
+        res.json({
+            // Basic clicker settings
+            enabled: config.enabled,
+            cps: config.cps,
+            leftClick: config.leftClick,
+            blatantMode: config.blatantMode,
+            holdToClick: config.holdToClick,
+            hotkeyCode: config.hotkeyCode,
+            useMacro: config.useMacro,
+            macroIntervals: config.macroIntervals || [],
+            
+            // Randomization settings
+            enableRandomization: config.enableRandomization,
+            randomizationAmount: config.randomizationAmount,
+            
+            // Exhaust settings
+            exhaustMode: config.exhaustMode,
+            exhaustDropCps: config.exhaustDropCps,
+            exhaustChance: config.exhaustChance,
+            
+            // Spike settings
+            spikeMode: config.spikeMode,
+            spikeIncreaseCps: config.spikeIncreaseCps,
+            spikeChance: config.spikeChance,
+            
+            // Blockhit settings
+            blockhitEnabled: config.blockhitEnabled,
+            blockChance: config.blockChance,
+            holdLengthMin: config.holdLengthMin,
+            holdLengthMax: config.holdLengthMax,
+            delayMin: config.delayMin,
+            delayMax: config.delayMax,
+            onlyWhileClicking: config.onlyWhileClicking,
+            
+            // Throw Pot settings
+            throwPotEnabled: config.throwPotEnabled,
+            throwPotHotkey: config.throwPotHotkey,
+            throwPotWeaponSlot: config.throwPotWeaponSlot,
+            throwPotSlots: config.throwPotSlots,
+            throwPotSlotDelay: config.throwPotSlotDelay,
+            throwPotThrowDelay: config.throwPotThrowDelay,
+            throwPotReturnDelay: config.throwPotReturnDelay,
+            
+            // Loader settings
+            hideLoader: config.hideLoader
+        });
+    } catch (error) {
+        console.error('Settings fetch error:', error);
+        res.status(500).json({ error: 'Failed to fetch settings' });
+    }
+});
+
 // Update agent settings
 app.post('/api/agent/settings', authenticateToken, async (req, res) => {
     try {
@@ -1018,58 +1090,11 @@ app.post('/api/agent/settings', authenticateToken, async (req, res) => {
             }));
         }
 
-        res.json({ success: true });
+        res.json({ success: true });  // ONLY ONE RESPONSE!
     } catch (error) {
         console.error('Settings update error:', error);
         res.status(500).json({ error: 'Failed to update settings' });
     }
-
-    res.json({
-    // Basic clicker settings
-    enabled: config.enabled,
-    cps: config.cps,
-    leftClick: config.leftClick,
-    blatantMode: config.blatantMode,
-    holdToClick: config.holdToClick,
-    hotkeyCode: config.hotkeyCode,
-    useMacro: config.useMacro,
-    macroIntervals: config.macroIntervals || [],
-    
-    // Randomization settings
-    enableRandomization: config.enableRandomization,
-    randomizationAmount: config.randomizationAmount,
-    
-    // Exhaust settings
-    exhaustMode: config.exhaustMode,
-    exhaustDropCps: config.exhaustDropCps,
-    exhaustChance: config.exhaustChance,
-    
-    // Spike settings
-    spikeMode: config.spikeMode,
-    spikeIncreaseCps: config.spikeIncreaseCps,
-    spikeChance: config.spikeChance,
-    
-    // Blockhit settings
-    blockhitEnabled: config.blockhitEnabled,
-    blockChance: config.blockChance,
-    holdLengthMin: config.holdLengthMin,
-    holdLengthMax: config.holdLengthMax,
-    delayMin: config.delayMin,
-    delayMax: config.delayMax,
-    onlyWhileClicking: config.onlyWhileClicking,
-    
-    // Throw Pot settings
-    throwPotEnabled: config.throwPotEnabled,
-    throwPotHotkey: config.throwPotHotkey,
-    throwPotWeaponSlot: config.throwPotWeaponSlot,
-    throwPotSlots: config.throwPotSlots,
-    throwPotSlotDelay: config.throwPotSlotDelay,
-    throwPotThrowDelay: config.throwPotThrowDelay,
-    throwPotReturnDelay: config.throwPotReturnDelay,
-    
-    // Loader settings
-    hideLoader: config.hideLoader,
-});
 });
 
 // Agent heartbeat
