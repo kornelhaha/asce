@@ -1,4 +1,4 @@
-// models.js - Updated with exhaust, spike, and blockhit settings
+// models.js - Updated with randomization, throwpot, and loader settings
 
 const mongoose = require('mongoose');
 
@@ -161,7 +161,7 @@ const activitySchema = new mongoose.Schema({
     }
 });
 
-// Config Schema - UPDATED with exhaust, spike, and blockhit
+// Config Schema - UPDATED with all new features
 const configSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -178,28 +178,44 @@ const configSchema = new mongoose.Schema({
     enabled: { type: Boolean, default: false },
     cps: { type: Number, default: 10.0 },
     leftClick: { type: Boolean, default: true },
-    blatantMode: { type: Boolean, default: false },  // Disables randomization
+    blatantMode: { type: Boolean, default: false },
     holdToClick: { type: Boolean, default: true },
     hotkeyCode: { type: Number, default: 117 },  // F6
     
+    // ===== RANDOMIZATION SETTINGS =====
+    enableRandomization: { type: Boolean, default: false },
+    randomizationAmount: { type: Number, default: 1.0, min: 0.1, max: 5.0 },
+    
     // ===== EXHAUST MODE SETTINGS =====
     exhaustMode: { type: Boolean, default: false },
-    exhaustDropCps: { type: Number, default: 3.0 },  // CPS to drop by (1-10)
-    exhaustChance: { type: Number, default: 50 },    // Chance % (0-100)
+    exhaustDropCps: { type: Number, default: 3.0 },
+    exhaustChance: { type: Number, default: 50 },
     
     // ===== SPIKE MODE SETTINGS =====
     spikeMode: { type: Boolean, default: false },
-    spikeIncreaseCps: { type: Number, default: 5.0 },  // CPS to increase by (1-15)
-    spikeChance: { type: Number, default: 30 },        // Chance % (0-100)
+    spikeIncreaseCps: { type: Number, default: 5.0 },
+    spikeChance: { type: Number, default: 30 },
     
     // ===== BLOCKHIT SETTINGS =====
     blockhitEnabled: { type: Boolean, default: false },
-    blockChance: { type: Number, default: 50 },        // Chance % to block (0-100)
-    holdLengthMin: { type: Number, default: 50 },      // Min hold time ms (10-500)
-    holdLengthMax: { type: Number, default: 150 },     // Max hold time ms (10-500)
-    delayMin: { type: Number, default: 100 },          // Min delay between blocks ms
-    delayMax: { type: Number, default: 300 },          // Max delay between blocks ms
-    onlyWhileClicking: { type: Boolean, default: true }, // Only trigger during clicking
+    blockChance: { type: Number, default: 50 },
+    holdLengthMin: { type: Number, default: 50 },
+    holdLengthMax: { type: Number, default: 150 },
+    delayMin: { type: Number, default: 100 },
+    delayMax: { type: Number, default: 300 },
+    onlyWhileClicking: { type: Boolean, default: true },
+    
+    // ===== THROW POT SETTINGS =====
+    throwPotEnabled: { type: Boolean, default: false },
+    throwPotHotkey: { type: Number, default: 0x52 },  // R key
+    throwPotWeaponSlot: { type: Number, default: 1 },
+    throwPotSlots: { type: String, default: "011000000" },  // Slots 2 and 3 enabled
+    throwPotSlotDelay: { type: Number, default: 50 },
+    throwPotThrowDelay: { type: Number, default: 100 },
+    throwPotReturnDelay: { type: Number, default: 50 },
+    
+    // ===== LOADER SETTINGS =====
+    hideLoader: { type: Boolean, default: false },
     
     createdAt: {
         type: Date,
@@ -216,9 +232,6 @@ configSchema.pre('save', function(next) {
     this.updatedAt = new Date();
     next();
 });
-
-// Macro Schema - REMOVED (as requested)
-// No longer needed
 
 const User = mongoose.model('User', userSchema);
 const Session = mongoose.model('Session', sessionSchema);
