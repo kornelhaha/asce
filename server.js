@@ -1038,7 +1038,7 @@ res.json({
     throwPotReturnDelay: config.throwPotReturnDelay,
     
     // Loader settings
-    hideLoader: config.hideLoader,
+    hideLoader: config.hideLoader
 });
 
 // Update agent settings
@@ -1229,3 +1229,4 @@ function generateLicenseKey() {
 }
 
 module.exports = app;
+
