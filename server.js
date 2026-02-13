@@ -994,7 +994,37 @@ app.get('/api/agent/validate', authenticateToken, async (req, res) => {
     }
 });
 
-res.json({
+// Update agent settings
+app.post('/api/agent/settings', authenticateToken, async (req, res) => {
+    try {
+        const updates = req.body;
+
+        console.log('[AGENT] Settings update for', req.user.username, ':', Object.keys(updates));
+
+        const config = await Config.findOneAndUpdate(
+            { userId: req.user.id, name: 'default' },
+            { 
+                $set: updates,
+                updatedAt: new Date()
+            },
+            { upsert: true, new: true }
+        );
+
+        const userWs = connectedClients.get(req.user.id);
+        if (userWs && userWs.readyState === WebSocket.OPEN) {
+            userWs.send(JSON.stringify({
+                type: 'settings_updated',
+                settings: updates
+            }));
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Settings update error:', error);
+        res.status(500).json({ error: 'Failed to update settings' });
+    }
+
+    res.json({
     // Basic clicker settings
     enabled: config.enabled,
     cps: config.cps,
@@ -1038,38 +1068,8 @@ res.json({
     throwPotReturnDelay: config.throwPotReturnDelay,
     
     // Loader settings
-    hideLoader: config.hideLoader
+    hideLoader: config.hideLoader,
 });
-
-// Update agent settings
-app.post('/api/agent/settings', authenticateToken, async (req, res) => {
-    try {
-        const updates = req.body;
-
-        console.log('[AGENT] Settings update for', req.user.username, ':', Object.keys(updates));
-
-        const config = await Config.findOneAndUpdate(
-            { userId: req.user.id, name: 'default' },
-            { 
-                $set: updates,
-                updatedAt: new Date()
-            },
-            { upsert: true, new: true }
-        );
-
-        const userWs = connectedClients.get(req.user.id);
-        if (userWs && userWs.readyState === WebSocket.OPEN) {
-            userWs.send(JSON.stringify({
-                type: 'settings_updated',
-                settings: updates
-            }));
-        }
-
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Settings update error:', error);
-        res.status(500).json({ error: 'Failed to update settings' });
-    }
 });
 
 // Agent heartbeat
@@ -1229,4 +1229,3 @@ function generateLicenseKey() {
 }
 
 module.exports = app;
-
