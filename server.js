@@ -1015,53 +1015,51 @@ app.get('/api/agent/settings', authenticateToken, async (req, res) => {
         console.log('[AGENT] Settings fetched for', user.username);
 
         res.json({
-            // Basic clicker settings
-            enabled: config.enabled,
-            cps: config.cps,
-            leftClick: config.leftClick,
-            blatantMode: config.blatantMode,
-            holdToClick: config.holdToClick,
-            hotkeyCode: config.hotkeyCode,
-            useMacro: config.useMacro,
-            macroIntervals: config.macroIntervals || [],
-            
-            // Exhaust settings
-            exhaustMode: config.exhaustMode,
-            exhaustDropCps: config.exhaustDropCps,
-            exhaustChance: config.exhaustChance,
-            
-            // Spike settings
-            spikeMode: config.spikeMode,
-            spikeIncreaseCps: config.spikeIncreaseCps,
-            spikeChance: config.spikeChance,
-            
-            // Blockhit settings
-            blockhitEnabled: config.blockhitEnabled,
-            blockChance: config.blockChance,
-            holdLengthMin: config.holdLengthMin,
-            holdLengthMax: config.holdLengthMax,
-            delayMin: config.delayMin,
-            delayMax: config.delayMax,
-            onlyWhileClicking: config.onlyWhileClicking,
-            
-            // Overlay settings
-            overlayEnabled: config.overlayEnabled,
-            overlayScale: config.overlayScale,
-            overlayTextColorR: config.overlayTextColorR,
-            overlayTextColorG: config.overlayTextColorG,
-            overlayTextColorB: config.overlayTextColorB,
-            overlayBackground: config.overlayBackground,
-            overlayLowercase: config.overlayLowercase,
-            overlayColorbar: config.overlayColorbar,
-            overlaySuffix: config.overlaySuffix,
-            overlayShadow: config.overlayShadow,
-            overlayRainbow: config.overlayRainbow,
-            overlayWatermark: config.overlayWatermark,
-            overlayBgColorR: config.overlayBgColorR,
-            overlayBgColorG: config.overlayBgColorG,
-            overlayBgColorB: config.overlayBgColorB,
-            overlayBgOpacity: config.overlayBgOpacity
-        });
+    // Basic clicker settings
+    enabled: config.enabled,
+    cps: config.cps,
+    leftClick: config.leftClick,
+    blatantMode: config.blatantMode,
+    holdToClick: config.holdToClick,
+    hotkeyCode: config.hotkeyCode,
+    useMacro: config.useMacro,
+    macroIntervals: config.macroIntervals || [],
+    
+    // Randomization settings
+    enableRandomization: config.enableRandomization,
+    randomizationAmount: config.randomizationAmount,
+    
+    // Exhaust settings
+    exhaustMode: config.exhaustMode,
+    exhaustDropCps: config.exhaustDropCps,
+    exhaustChance: config.exhaustChance,
+    
+    // Spike settings
+    spikeMode: config.spikeMode,
+    spikeIncreaseCps: config.spikeIncreaseCps,
+    spikeChance: config.spikeChance,
+    
+    // Blockhit settings
+    blockhitEnabled: config.blockhitEnabled,
+    blockChance: config.blockChance,
+    holdLengthMin: config.holdLengthMin,
+    holdLengthMax: config.holdLengthMax,
+    delayMin: config.delayMin,
+    delayMax: config.delayMax,
+    onlyWhileClicking: config.onlyWhileClicking,
+    
+    // Throw Pot settings
+    throwPotEnabled: config.throwPotEnabled,
+    throwPotHotkey: config.throwPotHotkey,
+    throwPotWeaponSlot: config.throwPotWeaponSlot,
+    throwPotSlots: config.throwPotSlots,
+    throwPotSlotDelay: config.throwPotSlotDelay,
+    throwPotThrowDelay: config.throwPotThrowDelay,
+    throwPotReturnDelay: config.throwPotReturnDelay,
+    
+    // Loader settings
+    hideLoader: config.hideLoader,
+});
     } catch (error) {
         console.error('Settings fetch error:', error);
         res.status(500).json({ error: 'Failed to fetch settings' });
