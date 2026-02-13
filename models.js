@@ -173,6 +173,25 @@ const configSchema = new mongoose.Schema({
         required: true,
         default: 'default'
     },
+
+    // Throw Pot settings
+throwPotEnabled: { type: Boolean, default: false },
+throwPotHotkey: { type: Number, default: 0x52 },  // R key
+throwPotWeaponSlot: { type: Number, default: 1 },
+throwPotSlots: { type: String, default: "011000000" },
+throwPotSlotDelay: { type: Number, default: 50 },
+throwPotThrowDelay: { type: Number, default: 100 },
+throwPotReturnDelay: { type: Number, default: 50 },
+
+// NEW - Custom keybinds
+throwPotWeaponKeybinds: { 
+    type: String, 
+    default: JSON.stringify([0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39]) 
+},
+throwPotPotionKeybinds: { 
+    type: String, 
+    default: JSON.stringify([0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39]) 
+},
     
     // ===== CLICKER SETTINGS =====
     enabled: { type: Boolean, default: false },
