@@ -1049,13 +1049,15 @@ app.get('/api/agent/settings', authenticateToken, async (req, res) => {
     onlyWhileClicking: config.onlyWhileClicking,
     
     // Throw Pot settings
-    throwPotEnabled: config.throwPotEnabled,
-    throwPotHotkey: config.throwPotHotkey,
-    throwPotWeaponSlot: config.throwPotWeaponSlot,
-    throwPotSlots: config.throwPotSlots,
-    throwPotSlotDelay: config.throwPotSlotDelay,
-    throwPotThrowDelay: config.throwPotThrowDelay,
-    throwPotReturnDelay: config.throwPotReturnDelay,
+throwPotEnabled: config.throwPotEnabled,
+throwPotHotkey: config.throwPotHotkey,
+throwPotWeaponSlot: config.throwPotWeaponSlot,
+throwPotSlots: config.throwPotSlots,
+throwPotSlotDelay: config.throwPotSlotDelay,
+throwPotThrowDelay: config.throwPotThrowDelay,
+throwPotReturnDelay: config.throwPotReturnDelay,
+throwPotWeaponKeybinds: config.throwPotWeaponKeybinds,
+throwPotPotionKeybinds: config.throwPotPotionKeybinds,
     
     // Loader settings
     hideLoader: config.hideLoader
