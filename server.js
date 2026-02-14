@@ -10,7 +10,7 @@ const WebSocket = require('ws');
 const path = require('path');
 require('dotenv').config();
 
-const { User, Session, License, Activity, Config, Macro } = require('./models');
+const { User, Session, License, Activity, Config, SavedConfig } = require('./models');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -1015,31 +1015,34 @@ app.get('/api/agent/settings', authenticateToken, async (req, res) => {
         console.log('[AGENT] Settings fetched for', user.username);
 
         res.json({
-    // Basic clicker settings
+    // Left Clicker
     enabled: config.enabled,
     cps: config.cps,
     leftClick: config.leftClick,
     blatantMode: config.blatantMode,
     holdToClick: config.holdToClick,
     hotkeyCode: config.hotkeyCode,
-    useMacro: config.useMacro,
-    macroIntervals: config.macroIntervals || [],
     
-    // Randomization settings
+    // Left Clicker Advanced
     enableRandomization: config.enableRandomization,
     randomizationAmount: config.randomizationAmount,
-    
-    // Exhaust settings
     exhaustMode: config.exhaustMode,
     exhaustDropCps: config.exhaustDropCps,
     exhaustChance: config.exhaustChance,
-    
-    // Spike settings
     spikeMode: config.spikeMode,
     spikeIncreaseCps: config.spikeIncreaseCps,
     spikeChance: config.spikeChance,
     
-    // Blockhit settings
+    // Right Clicker
+    rightEnabled: config.rightEnabled,
+    rightCps: config.rightCps,
+    rightBlatantMode: config.rightBlatantMode,
+    rightHoldToClick: config.rightHoldToClick,
+    rightHotkeyCode: config.rightHotkeyCode,
+    rightEnableRandomization: config.rightEnableRandomization,
+    rightRandomizationAmount: config.rightRandomizationAmount,
+    
+    // Blockhit
     blockhitEnabled: config.blockhitEnabled,
     blockChance: config.blockChance,
     holdLengthMin: config.holdLengthMin,
@@ -1048,18 +1051,7 @@ app.get('/api/agent/settings', authenticateToken, async (req, res) => {
     delayMax: config.delayMax,
     onlyWhileClicking: config.onlyWhileClicking,
     
-    // Throw Pot settings
-throwPotEnabled: config.throwPotEnabled,
-throwPotHotkey: config.throwPotHotkey,
-throwPotWeaponSlot: config.throwPotWeaponSlot,
-throwPotSlots: config.throwPotSlots,
-throwPotSlotDelay: config.throwPotSlotDelay,
-throwPotThrowDelay: config.throwPotThrowDelay,
-throwPotReturnDelay: config.throwPotReturnDelay,
-throwPotWeaponKeybinds: config.throwPotWeaponKeybinds,
-throwPotPotionKeybinds: config.throwPotPotionKeybinds,
-    
-    // Loader settings
+    // Loader
     hideLoader: config.hideLoader
 });
 
@@ -1255,5 +1247,91 @@ function generateLicenseKey() {
     }
     return key;
 }
+
+// GET all saved configs for user
+app.get('/api/configs', authenticateToken, async (req, res) => {
+    try {
+        const configs = await SavedConfig.find({ userId: req.user.id })
+            .sort({ createdAt: -1 })
+            .select('_id name createdAt');
+        
+        res.json(configs);
+    } catch (error) {
+        console.error('[CONFIGS] Get error:', error);
+        res.status(500).json({ error: 'Failed to load configs' });
+    }
+});
+
+// POST create new saved config
+app.post('/api/configs', authenticateToken, async (req, res) => {
+    try {
+        const { name, settings } = req.body;
+        
+        if (!name || !settings) {
+            return res.status(400).json({ error: 'Name and settings required' });
+        }
+        
+        // Check if user already has 20 configs (limit)
+        const configCount = await SavedConfig.countDocuments({ userId: req.user.id });
+        if (configCount >= 20) {
+            return res.status(400).json({ error: 'Maximum 20 configs allowed' });
+        }
+        
+        const config = new SavedConfig({
+            userId: req.user.id,
+            name: name.trim(),
+            settings: settings
+        });
+        
+        await config.save();
+        
+        await logActivity(req.user.id, req.user.username, 'CONFIG_SAVED', name, req.ip);
+        
+        res.json({ message: 'Config saved', configId: config._id });
+    } catch (error) {
+        console.error('[CONFIGS] Save error:', error);
+        res.status(500).json({ error: 'Failed to save config' });
+    }
+});
+
+// GET specific config with full settings
+app.get('/api/configs/:id', authenticateToken, async (req, res) => {
+    try {
+        const config = await SavedConfig.findOne({
+            _id: req.params.id,
+            userId: req.user.id
+        });
+        
+        if (!config) {
+            return res.status(404).json({ error: 'Config not found' });
+        }
+        
+        res.json(config);
+    } catch (error) {
+        console.error('[CONFIGS] Get specific error:', error);
+        res.status(500).json({ error: 'Failed to load config' });
+    }
+});
+
+// DELETE saved config
+app.delete('/api/configs/:id', authenticateToken, async (req, res) => {
+    try {
+        const result = await SavedConfig.deleteOne({
+            _id: req.params.id,
+            userId: req.user.id
+        });
+        
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ error: 'Config not found' });
+        }
+        
+        await logActivity(req.user.id, req.user.username, 'CONFIG_DELETED', req.params.id, req.ip);
+        
+        res.json({ message: 'Config deleted' });
+    } catch (error) {
+        console.error('[CONFIGS] Delete error:', error);
+        res.status(500).json({ error: 'Failed to delete config' });
+    }
+});
 
 module.exports = app;
