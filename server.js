@@ -874,49 +874,7 @@ app.patch('/api/user/profile', authenticateToken, async (req, res) => {
     }
 });
 
-// Get user configs
-app.get('/api/configs', authenticateToken, async (req, res) => {
-    try {
-        const configs = await Config.find({ userId: req.user.id })
-            .sort({ createdAt: -1 });
-        res.json(configs);
-    } catch (error) {
-        console.error('Configs fetch error:', error);
-        res.status(500).json({ error: 'Failed to fetch configs' });
-    }
-});
 
-// Save config
-app.post('/api/configs', authenticateToken, async (req, res) => {
-    try {
-        const { name, settings } = req.body;
-
-        const config = await Config.create({
-            userId: req.user.id,
-            name,
-            settings
-        });
-
-        res.json(config);
-    } catch (error) {
-        console.error('Config save error:', error);
-        res.status(500).json({ error: 'Failed to save config' });
-    }
-});
-
-// Delete config
-app.delete('/api/configs/:id', authenticateToken, async (req, res) => {
-    try {
-        await Config.findOneAndDelete({
-            _id: req.params.id,
-            userId: req.user.id
-        });
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Config delete error:', error);
-        res.status(500).json({ error: 'Failed to delete config' });
-    }
-});
 
 // Get user macros
 app.get('/api/macros', authenticateToken, async (req, res) => {
@@ -1249,7 +1207,7 @@ function generateLicenseKey() {
 }
 
 // GET all saved configs for user
-app.get('/api/configs', authenticateToken, async (req, res) => {
+app.get('/api/saved-configs', authenticateToken, async (req, res) => {
     try {
         const configs = await SavedConfig.find({ userId: req.user.id })
             .sort({ createdAt: -1 })
@@ -1263,7 +1221,7 @@ app.get('/api/configs', authenticateToken, async (req, res) => {
 });
 
 // POST create new saved config
-app.post('/api/configs', authenticateToken, async (req, res) => {
+app.post('/api/saved-configs', authenticateToken, async (req, res) => {
     try {
         const { name, settings } = req.body;
         
@@ -1295,7 +1253,7 @@ app.post('/api/configs', authenticateToken, async (req, res) => {
 });
 
 // GET specific config with full settings
-app.get('/api/configs/:id', authenticateToken, async (req, res) => {
+app.get('/api/saved-configs/:id', authenticateToken, async (req, res) => {
     try {
         const config = await SavedConfig.findOne({
             _id: req.params.id,
@@ -1314,7 +1272,7 @@ app.get('/api/configs/:id', authenticateToken, async (req, res) => {
 });
 
 // DELETE saved config
-app.delete('/api/configs/:id', authenticateToken, async (req, res) => {
+app.delete('/api/saved-configs/:id', authenticateToken, async (req, res) => {
     try {
         const result = await SavedConfig.deleteOne({
             _id: req.params.id,
