@@ -1,4 +1,4 @@
-// models.js - Updated with randomization, throwpot, and loader settings
+// models.js - Updated with Right Clicker and Config Manager
 
 const mongoose = require('mongoose');
 
@@ -161,7 +161,7 @@ const activitySchema = new mongoose.Schema({
     }
 });
 
-// Config Schema - UPDATED with all new features
+// Config Schema - User's default settings
 const configSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -173,27 +173,8 @@ const configSchema = new mongoose.Schema({
         required: true,
         default: 'default'
     },
-
-    // Throw Pot settings
-throwPotEnabled: { type: Boolean, default: false },
-throwPotHotkey: { type: Number, default: 0x52 },  // R key
-throwPotWeaponSlot: { type: Number, default: 1 },
-throwPotSlots: { type: String, default: "011000000" },
-throwPotSlotDelay: { type: Number, default: 50 },
-throwPotThrowDelay: { type: Number, default: 100 },
-throwPotReturnDelay: { type: Number, default: 50 },
-
-// NEW - Custom keybinds
-throwPotWeaponKeybinds: { 
-    type: String, 
-    default: JSON.stringify([0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39]) 
-},
-throwPotPotionKeybinds: { 
-    type: String, 
-    default: JSON.stringify([0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39]) 
-},
     
-    // ===== CLICKER SETTINGS =====
+    // ===== LEFT CLICKER SETTINGS =====
     enabled: { type: Boolean, default: false },
     cps: { type: Number, default: 10.0 },
     leftClick: { type: Boolean, default: true },
@@ -201,19 +182,28 @@ throwPotPotionKeybinds: {
     holdToClick: { type: Boolean, default: true },
     hotkeyCode: { type: Number, default: 117 },  // F6
     
-    // ===== RANDOMIZATION SETTINGS =====
+    // ===== LEFT CLICKER RANDOMIZATION =====
     enableRandomization: { type: Boolean, default: false },
     randomizationAmount: { type: Number, default: 1.0, min: 0.1, max: 5.0 },
     
-    // ===== EXHAUST MODE SETTINGS =====
+    // ===== LEFT CLICKER EXHAUST MODE =====
     exhaustMode: { type: Boolean, default: false },
     exhaustDropCps: { type: Number, default: 3.0 },
     exhaustChance: { type: Number, default: 50 },
     
-    // ===== SPIKE MODE SETTINGS =====
+    // ===== LEFT CLICKER SPIKE MODE =====
     spikeMode: { type: Boolean, default: false },
     spikeIncreaseCps: { type: Number, default: 5.0 },
     spikeChance: { type: Number, default: 30 },
+    
+    // ===== RIGHT CLICKER SETTINGS =====
+    rightEnabled: { type: Boolean, default: false },
+    rightCps: { type: Number, default: 10.0 },
+    rightBlatantMode: { type: Boolean, default: false },
+    rightHoldToClick: { type: Boolean, default: true },
+    rightHotkeyCode: { type: Number, default: 118 },  // F7
+    rightEnableRandomization: { type: Boolean, default: false },
+    rightRandomizationAmount: { type: Number, default: 1.0, min: 0.1, max: 5.0 },
     
     // ===== BLOCKHIT SETTINGS =====
     blockhitEnabled: { type: Boolean, default: false },
@@ -228,10 +218,18 @@ throwPotPotionKeybinds: {
     throwPotEnabled: { type: Boolean, default: false },
     throwPotHotkey: { type: Number, default: 0x52 },  // R key
     throwPotWeaponSlot: { type: Number, default: 1 },
-    throwPotSlots: { type: String, default: "011000000" },  // Slots 2 and 3 enabled
+    throwPotSlots: { type: String, default: "011000000" },
     throwPotSlotDelay: { type: Number, default: 50 },
     throwPotThrowDelay: { type: Number, default: 100 },
     throwPotReturnDelay: { type: Number, default: 50 },
+    throwPotWeaponKeybinds: { 
+        type: String, 
+        default: JSON.stringify([0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39]) 
+    },
+    throwPotPotionKeybinds: { 
+        type: String, 
+        default: JSON.stringify([0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39]) 
+    },
     
     // ===== LOADER SETTINGS =====
     hideLoader: { type: Boolean, default: false },
@@ -246,22 +244,49 @@ throwPotPotionKeybinds: {
     }
 });
 
+// Saved Config Schema - User's saved configurations
+const savedConfigSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    settings: {
+        type: Object,
+        required: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 // Update timestamp on save
 configSchema.pre('save', function(next) {
     this.updatedAt = new Date();
     next();
 });
 
+// Index for faster queries
+savedConfigSchema.index({ userId: 1, createdAt: -1 });
+
 const User = mongoose.model('User', userSchema);
 const Session = mongoose.model('Session', sessionSchema);
 const License = mongoose.model('License', licenseSchema);
 const Activity = mongoose.model('Activity', activitySchema);
 const Config = mongoose.model('Config', configSchema);
+const SavedConfig = mongoose.model('SavedConfig', savedConfigSchema);
 
 module.exports = {
     User,
     Session,
     License,
     Activity,
-    Config
+    Config,
+    SavedConfig
 };
